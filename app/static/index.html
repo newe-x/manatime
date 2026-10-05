@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>ManaTime</title>
+<link rel="icon" type="image/png" href="/static/favicon.png">
+<script>document.documentElement.dataset.theme = localStorage.getItem("mana.theme") === "dark" ? "dark" : "light";</script>
+<link rel="preload" href="/static/fonts/overpass-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/static/app.css">
+
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-prev" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-next" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/></symbol>
+  <symbol id="i-spin" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.2-8.6"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+  <symbol id="i-reset" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></symbol>
+  <symbol id="i-skip" viewBox="0 0 24 24"><path d="m5 4 10 8-10 8z"/><path d="M19 5v14"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+</svg>
+<main id="main">
+  <header>
+    <div>
+      <div class="brand"><img src="/static/manatime-mark.png" alt="" width="34" height="34">
+        <span class="wordmark">Mana<span>Time</span></span><span class="tagline">Sincronização de Agendas</span></div>
+      <h1 id="title">Hoje</h1>
+      <div class="date" id="date">&nbsp;</div>
+      <div class="summary" id="summary" aria-live="polite"></div>
+    </div>
+    <div class="controls">
+      <div class="seg tabs" role="group" aria-label="Seções">
+        <button id="view-day" aria-pressed="true" title="Dia (D)">Dia</button>
+        <button id="view-week" aria-pressed="false" title="Semana (S)">Semana</button>
+        <button id="view-todo" aria-pressed="false" title="To-do e pomodoro (F)">To-do</button>
+        <button id="view-accounts" aria-pressed="false" title="Contas (C)">Contas</button>
+      </div>
+      <div class="seg" role="group" aria-label="Navegar" id="nav">
+        <button class="icon" id="prev" aria-label="Anterior" title="Anterior (←)"><svg class="i"><use href="#i-prev"/></svg></button>
+        <button id="today" title="Hoje (T)">Hoje</button>
+        <button class="icon" id="next" aria-label="Próximo" title="Próximo (→)"><svg class="i"><use href="#i-next"/></svg></button>
+      </div>
+      <button id="refresh" title="Ler as agendas de novo (R)" aria-label="Atualizar">
+        <svg class="i idle"><use href="#i-refresh"/></svg><svg class="i spin"><use href="#i-spin"/></svg>
+        <span class="label" id="refresh-label">Atualizar</span>
+      </button>
+      <button class="icon theme" id="theme" aria-pressed="false" aria-label="Tema preto" title="Tema preto">
+        <svg class="i moon"><use href="#i-moon"/></svg><svg class="i sun"><use href="#i-sun"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div id="alert" role="alert"></div>
+  <ul class="accounts" id="accounts" aria-label="Contas"></ul>
+  <div id="dayview">
+    <div class="daymain">
+      <section class="panel ribbon" id="ribbon" aria-hidden="true" hidden></section>
+      <ol class="panel list" id="events" aria-label="Reuniões e atividades do dia">
+        <li class="skel"></li><li class="skel"></li><li class="skel"></li>
+      </ol>
+    </div>
+  </div>
+  <div id="weekview" hidden>
+    <section class="panel week" id="week" aria-label="Reuniões da semana"></section>
+    <div class="cards">
+      <section class="panel card" aria-labelledby="h-hours"><h2 id="h-hours" class="sect">Horas em reunião</h2><div id="hours"></div></section>
+      <section class="panel card" aria-labelledby="h-clash"><h2 id="h-clash" class="sect">Conflitos entre empresas</h2><ul class="clashes" id="clashes"></ul></section>
+    </div>
+  </div>
+
+  <div id="todoview" hidden>
+    <div class="todo-grid">
+      <section class="panel pomo" aria-labelledby="h-pomo">
+        <h2 id="h-pomo" class="sect">Pomodoro</h2>
+        <div class="pomo-face">
+          <svg viewBox="0 0 220 220" class="ring" aria-hidden="true">
+            <circle cx="110" cy="110" r="96" class="ring-track"/>
+            <circle cx="110" cy="110" r="96" class="ring-prog" id="pomo-prog"/>
+          </svg>
+          <div class="pomo-center">
+            <div class="pomo-mode" id="pomo-mode">Foco</div>
+            <div class="pomo-time num" id="pomo-time" role="timer" aria-live="off">25:00</div>
+            <div class="pomo-dots" id="pomo-dots" aria-hidden="true"></div>
+          </div>
+        </div>
+        <p class="pomo-task" id="pomo-task"></p>
+        <div class="pomo-actions">
+          <button class="primary big" id="pomo-start"><svg class="i"><use href="#i-play"/></svg><span>Iniciar</span></button>
+          <button class="icon" id="pomo-reset" aria-label="Reiniciar etapa" title="Reiniciar etapa"><svg class="i"><use href="#i-reset"/></svg></button>
+          <button class="icon" id="pomo-skip" aria-label="Pular para a próxima etapa" title="Pular para a próxima etapa"><svg class="i"><use href="#i-skip"/></svg></button>
+        </div>
+        <p class="pomo-stats num" id="pomo-stats"></p>
+        <details class="pomo-cfg">
+          <summary>Configurar</summary>
+          <form id="pomo-form">
+            <label>Foco <span><input type="number" name="focus" min="1" max="180" required> min</span></label>
+            <label>Pausa curta <span><input type="number" name="short" min="1" max="60" required> min</span></label>
+            <label>Pausa longa <span><input type="number" name="long" min="1" max="90" required> min</span></label>
+            <label>Pausa longa a cada <span><input type="number" name="cycles" min="1" max="12" required> focos</span></label>
+            <label class="check"><input type="checkbox" name="auto"> Começar a próxima etapa sozinho</label>
+            <label class="check"><input type="checkbox" name="sound"> Tocar um som ao terminar</label>
+            <div class="cfg-actions"><button type="submit" class="primary">Salvar</button><button type="button" id="pomo-defaults" class="ghost">Voltar ao padrão (25/5/15)</button></div>
+            <p class="formerr" id="pomo-err" role="alert"></p>
+          </form>
+        </details>
+      </section>
+      <section class="panel todo" aria-labelledby="h-todo">
+        <h2 id="h-todo" class="sect">Tarefas <span class="count num" id="todo-count"></span></h2>
+        <form id="todo-form" class="todoform">
+          <input id="todo-title" maxlength="200" placeholder="Nova tarefa… use #tag para etiquetar" aria-label="Nova tarefa (use #tag para etiquetar)" autocomplete="off">
+          <select id="todo-when" aria-label="Quando">
+            <option value="">Sem data</option><option value="today">Hoje</option><option value="tomorrow">Amanhã</option>
+          </select>
+          <input id="todo-time" type="text" inputmode="numeric" maxlength="5" autocomplete="off" class="hhmm" placeholder="hh:mm" aria-label="Horário (opcional)">
+          <button type="submit" class="primary">Adicionar</button>
+        </form>
+        <p class="formerr" id="todo-err" role="alert"></p>
+        <div class="tagbar" id="tagbar" role="group" aria-label="Filtrar por tag"></div>
+        <div id="todo-lists"></div>
+      </section>
+    </div>
+  </div>
+
+  <div id="accountsview" hidden>
+    <section class="panel acc-panel" aria-labelledby="h-acclist">
+      <h2 id="h-acclist" class="sect">Suas contas</h2>
+      <ul class="acc-list" id="acc-list"></ul>
+    </section>
+    <section class="panel acc-panel" aria-labelledby="h-accadd">
+      <h2 id="h-accadd" class="sect">Adicionar conta</h2>
+      <form id="acc-add" class="acc-form"></form>
+      <p class="hint">Depois de adicionar, use “Fazer login” para entrar na conta pelo navegador das contas. A senha do noVNC é a VNC_PASSWORD do .env.</p>
+    </section>
+  </div>
+
+  <footer>
+    <button class="remind" id="remind" aria-pressed="false"><svg class="i"><use href="#i-bell"/></svg><span id="remind-label">Lembretes desligados</span></button>
+    <span class="keys"><kbd>D</kbd> <kbd>S</kbd> <kbd>F</kbd> <kbd>C</kbd> seções · <kbd>←</kbd> <kbd>→</kbd> navegar · <kbd>T</kbd> hoje · <kbd>R</kbd> atualizar</span>
+  </footer>
+</main>
+<script src="/static/app.js"></script>
+</body>
+</html>

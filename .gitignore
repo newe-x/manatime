@@ -1,0 +1,13 @@
+# segredos e dados pessoais
+.env
+data/
+config/accounts.yaml
+
+# ferramentas locais
+.claude/
+.impeccable/
+.pytest_cache/
+__pycache__/
+*.pyc
+.venv/
+*.tmp

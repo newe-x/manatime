@@ -1,0 +1,17 @@
+services:
+  agenda:
+    build: .
+    container_name: agenda
+    env_file: .env
+    environment:
+      TZ: ${TZ:-America/Sao_Paulo}
+      NOVNC_PORT: ${NOVNC_PORT:-6080}
+    # Só no localhost: o noVNC dá acesso às suas contas logadas
+    ports:
+      - "127.0.0.1:${AGENDA_PORT:-8765}:8000"   # dashboard
+      - "127.0.0.1:${NOVNC_PORT:-6080}:6080"   # noVNC (login nas contas)
+    volumes:
+      - ./config:/config         # accounts.yaml (editável pela aba Contas)
+      - ./data:/data            # perfis do Chromium + cache de eventos
+    shm_size: "1gb"
+    restart: unless-stopped

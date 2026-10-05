@@ -1,0 +1,18 @@
+# Exemplo de contas da ManaTime. Copie para accounts.yaml e ajuste,
+# ou deixe sem arquivo e adicione as contas pela aba Contas do dashboard.
+#
+# provider: google | outlook (Microsoft 365) | outlook_live (Outlook pessoal) | custom (precisa de url com {y}, {m}, {d})
+# short: sigla de até 4 letras usada no dashboard
+# color: cores validadas para daltonismo e contraste: #a276e4 #d92d20 #2468c9 #b88a0a #d6409f #5f8a1f
+#        (evite verde-água, laranja e azul-marinho: são as cores da marca)
+accounts:
+  - id: acme
+    name: Acme Corp
+    short: ACM
+    provider: google
+    color: "#a276e4"
+  - id: globex
+    name: Globex
+    short: GLX
+    provider: outlook
+    color: "#d92d20"

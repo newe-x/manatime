@@ -1,0 +1,9 @@
+data/
+.env
+tests/
+docs/
+.git/
+.claude/
+.impeccable/
+.pytest_cache/
+config/

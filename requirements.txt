@@ -1,0 +1,4 @@
+playwright==1.63.0
+fastapi>=0.142,<1
+uvicorn[standard]>=0.30
+pyyaml>=6
