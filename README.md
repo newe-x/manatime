@@ -76,7 +76,7 @@ Detalhes técnicos em [docs/arquitetura.md](docs/arquitetura.md).
 ```
 ┌──────────────────────────── container ────────────────────────────┐
 │ Xvnc :99 ── Chromium (conta A)  ┐                                  │
-│          ── Chromium (conta B)  ├─ Playwright ─ FastAPI ─ painel :8765
+│          ── Chromium (conta B)  ├─ Playwright ─ FastAPI ─ painel :80  
 │          ── Chromium (conta C)  ┘                  │               │
 │ noVNC :6080 (login manual)                 data/cache, plan.json  │
 └────────────────────────────────────────────────────────────────────┘
@@ -103,8 +103,10 @@ cp .env.example .env            # troque a VNC_PASSWORD
 docker compose up -d --build
 ```
 
-O painel fica em **http://localhost:8765** e o navegador das contas (noVNC) em
-**http://localhost:6080**. As duas portas só escutam em `127.0.0.1`.
+O painel fica em **http://localhost** (porta 80) e o navegador das contas (noVNC) em
+**http://localhost:6080**. As duas portas só escutam em `127.0.0.1`. Se a porta 80 já estiver
+em uso, troque `AGENDA_PORT` no `.env`. O container se chama `manatime`
+(`docker logs manatime`, `docker compose restart`).
 
 ## Primeiro uso
 
@@ -132,7 +134,7 @@ Variáveis do `.env` (veja `.env.example`):
 | Variável | Padrão | |
 |---|---|---|
 | `VNC_PASSWORD` | — | senha do noVNC (obrigatória) |
-| `AGENDA_PORT` | 8765 | porta do painel no host |
+| `AGENDA_PORT` | 80 | porta do painel no host |
 | `NOVNC_PORT` | 6080 | porta do noVNC no host |
 | `TZ` | America/Sao_Paulo | fuso das agendas |
 | `REFRESH_MINUTES` | 15 | intervalo da atualização automática (`0` desliga) |
@@ -197,6 +199,10 @@ tests/           testes do servidor e da interface
   de máquinas corporativas.
 - O container roda como root, então arquivos criados em `data/` e `config/` ficam com dono root.
 
-## Créditos
+## Licença
 
-- Fonte [Overpass](https://overpassfont.org/) (SIL Open Font License, em `app/static/fonts/OFL.txt`).
+[MIT](LICENSE): use, modifique e distribua à vontade, inclusive comercialmente, mantendo o aviso de
+copyright.
+
+A fonte [Overpass](https://overpassfont.org/) segue a SIL Open Font License
+(`app/static/fonts/OFL.txt`).
